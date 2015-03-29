@@ -8,28 +8,35 @@ import smtplib
 from subprocess import call, Popen, PIPE
 
 
-def send_fail_email(*args):
-    sender = 'user@localhost'
-    receivers = ['user@localhost']
-    message = '''Subject: Failed Process Notice
+class Email:
+    def __init__(self):
+        self.sender = sender
+        self.receivers = receivers
+        self.message = message
 
-    The following processes failed to start automatically:
-    {0}
-    '''.format(args)
-
-    smtp = smtplib.SMTP('localhost')
-    smtp.sendmail(sender, receivers, message)
+    def send_email(self):
+        smtp = smtplib.SMTP('localhost')
+        smtp.sendmail(self.sender, self.receivers, self.message)
 
 
-def send_success_email():
-    sender = 'user@localhost'
-    receivers = ['user@localhost']
-    message = '''Subject: All processes running
+class SendFailEmail(Email):
+    def __init__(self, *args):
+        self.sender = 'user@localhost'
+        self.receivers = ['user@localhost']
+        self.message = '''Subject: Failed Process Notice
 
-    No processes failed to start automatically.'''
+        The following processes failed to start automatically:
+        {0}
+        '''.format(args)
 
-    smtp = smtplib.SMTP('localhost')
-    smtp.sendmail(sender, receivers, message)
+
+class SendSuccessEmail(Email):
+    def __init__(self):
+        self.sender = 'user@localhost'
+        self.receivers = ['user@localhost']
+        self.message = '''Subject: All processes running
+
+        No processes failed to start automatically.'''
 
 
 def notify_fail():
@@ -46,9 +53,9 @@ def notify_fail():
         if process_name not in output:
             fail_list.append(process_name)
     if len(fail_list) > 0:
-        send_fail_email(fail_list)
+        SendFailEmail().send_email(fail_list)
     else:
-        send_success_email()
+        SendSuccessEmail().send_email()
 
 
 notify_fail()
