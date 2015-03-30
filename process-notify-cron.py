@@ -32,15 +32,18 @@ class SendFailEmail(Email):
 
 
 class SendSuccessEmail(Email):
-    def __init__(self):
+    def __init__(self, *args):
         self.sender = 'user@localhost'
         self.receivers = ['user@localhost']
         self.message = '''Subject: All processes running
 
-        No processes failed to start automatically.'''
+        The following processes were already running or started
+        automatically:
+        {0}
+        '''.format(args)
 
 
-def notify_fail():
+def notify():
     services = [
         ('apache2', 'apache2'),
         ('mysqld', 'mysql'),
@@ -48,15 +51,18 @@ def notify_fail():
         ('master', 'postfix')
     ]
     fail_list = []
+    success_list = []
     for process_name, service_name in services:
         p = Popen(['ps', '-C', process_name], stdout=PIPE)
         output, error = p.communicate()
         if process_name not in output:
             fail_list.append(process_name)
+        if process_name in output:
+            success_list.append(process_name)
     if len(fail_list) > 0:
         SendFailEmail(fail_list).send_email()
     else:
-        SendSuccessEmail().send_email()
+        SendSuccessEmail(success_list).send_email()
 
 
-notify_fail()
+notify()
