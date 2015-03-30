@@ -5,6 +5,7 @@
 # source: personal projects library
 
 import smtplib
+import sys
 from subprocess import call, Popen, PIPE
 
 
@@ -21,8 +22,8 @@ class Email:
 
 class SendFailEmail(Email):
     def __init__(self, *args):
-        self.sender = 'user@localhost'
-        self.receivers = ['user@localhost']
+        self.sender = 'root@localhost'
+        self.receivers = ['cyborg@localhost']
         self.message = '''Subject: Failed Process Notice
 
         The following processes failed to start automatically:
@@ -32,8 +33,8 @@ class SendFailEmail(Email):
 
 class SendSuccessEmail(Email):
     def __init__(self):
-        self.sender = 'user@localhost'
-        self.receivers = ['user@localhost']
+        self.sender = 'root@localhost'
+        self.receivers = ['cyborg@localhost']
         self.message = '''Subject: All processes running
 
         No processes failed to start automatically.'''
@@ -53,7 +54,7 @@ def notify_fail():
         if process_name not in output:
             fail_list.append(process_name)
     if len(fail_list) > 0:
-        SendFailEmail().send_email(fail_list)
+        SendFailEmail(fail_list).send_email()
     else:
         SendSuccessEmail().send_email()
 
