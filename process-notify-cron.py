@@ -6,15 +6,20 @@
 
 import smtplib
 import sys
+import locale
 from subprocess import call, Popen, PIPE
 
+encoding = locale.getdefaultlocale()[1]
 
-class Email:
-    def __init__(self):
-        self.sender = sender
-        self.receivers = receivers
-        self.message = message
+services = [
+    ('apache2', 'apache2'),
+    ('mysqld', 'mysql'),
+    ('postgres', 'postgresql'),
+    ('master', 'postfix')
+]
 
+
+class Email(object):
     def send_email(self):
         smtp = smtplib.SMTP('localhost')
         smtp.sendmail(self.sender, self.receivers, self.message)
@@ -29,6 +34,7 @@ class SendFailEmail(Email):
         The following processes failed to start automatically:
         {0}
         '''.format(args)
+        super(Email, self).__init__()
 
 
 class SendSuccessEmail(Email):
@@ -41,23 +47,18 @@ class SendSuccessEmail(Email):
         automatically:
         {0}
         '''.format(args)
+        super(Email, self).__init__()
 
 
-def notify():
-    services = [
-        ('apache2', 'apache2'),
-        ('mysqld', 'mysql'),
-        ('postgres', 'postgresql'),
-        ('master', 'postfix')
-    ]
+def notify(service_list):
     fail_list = []
     success_list = []
-    for process_name, service_name in services:
+    for process_name, service_name in service_list:
         p = Popen(['ps', '-C', process_name], stdout=PIPE)
         output, error = p.communicate()
-        if process_name not in output:
+        if process_name not in output.decode(encoding):
             fail_list.append(process_name)
-        if process_name in output:
+        if process_name in output.decode(encoding):
             success_list.append(process_name)
     if len(fail_list) > 0:
         SendFailEmail(fail_list).send_email()
