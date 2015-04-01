@@ -76,7 +76,7 @@ class Start(Action):
     def do_action(self):
         if len(self.fail_list) > 0:
             for service in self.fail_list:
-                call(['sudo', 'service', service, 'start'])
+                call(['service', service, 'start'])
 
 
 class Notify(Action):
