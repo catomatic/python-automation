@@ -17,3 +17,13 @@ Written to run as a cron job, determines if a service (based on process name, us
 Source file: process-cron.py
 
 Class-based combo of process-notify-cron.py and process-start-cron.py.
+
+### Start, Stop, Restart, Status
+
+Source file: service-cron.py
+
+Takes arguments to stop, start, restart, or get status of all services in the if statement; suitable for cron use. Uses decorators, just for fun. I primarily use this to stop all the webserver services at once.
+
+#### Updates
+
+04/01/2015: Added service-cron.py
